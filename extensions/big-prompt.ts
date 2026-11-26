@@ -24,15 +24,24 @@ function onPath(cmd: string): boolean {
 	return probe.status === 0;
 }
 
-export function resolveEditor(env: NodeJS.ProcessEnv = process.env): string {
+export function resolveEditor(
+	env: NodeJS.ProcessEnv = process.env,
+	platform: NodeJS.Platform = process.platform,
+	has: (cmd: string) => boolean = onPath,
+): string {
 	const fromEnv = env.VISUAL?.trim() || env.EDITOR?.trim();
 	if (fromEnv) return fromEnv;
-	if (isWin) return "notepad";
-	return ["nano", "vim", "vi"].find(onPath) ?? "vi";
+	if (platform === "win32") return "notepad";
+	return ["nano", "vim", "vi"].find(has) ?? "vi";
 }
 
-function quote(path: string): string {
-	return isWin ? `"${path}"` : `'${path.replace(/'/g, `'\\''`)}'`;
+export function quote(path: string, platform: NodeJS.Platform = process.platform): string {
+	return platform === "win32" ? `"${path}"` : `'${path.replace(/'/g, `'\\''`)}'`;
+}
+
+/** Normalize editor output: CRLF to LF, drop trailing newlines. */
+export function cleanText(raw: string): string {
+	return raw.replace(/\r\n/g, "\n").replace(/\n+$/, "");
 }
 
 export default function (pi: ExtensionAPI) {
@@ -75,7 +84,7 @@ export default function (pi: ExtensionAPI) {
 					return;
 				}
 
-				const text = readFileSync(file, "utf8").replace(/\r\n/g, "\n").replace(/\n+$/, "");
+				const text = cleanText(readFileSync(file, "utf8"));
 				if (text === initial) {
 					ctx.ui.notify("No changes", "info");
 					return;
