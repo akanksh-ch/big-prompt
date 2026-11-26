@@ -1,10 +1,14 @@
 {
   "name": "pi-big-prompt",
   "version": "0.1.0",
-  "description": "Pi extension: /edit opens $EDITOR to write big prompts",
+  "description": "Pi extension: /edit writes and sends big prompts from your $EDITOR, like git commit",
   "keywords": ["pi-package"],
-  "license": "MIT",
+  "license": "GPL-3.0-only",
+  "author": "Akanksh Chitimalla",
+  "repository": { "type": "git", "url": "git+https://github.com/akanksh-ch/big-prompt.git" },
+  "homepage": "https://github.com/akanksh-ch/big-prompt#readme",
   "type": "module",
+  "files": ["extensions", "README.md", "LICENSE"],
   "scripts": { "test": "node --test test/" },
   "pi": { "extensions": ["./extensions/big-prompt.ts"] }
 }
