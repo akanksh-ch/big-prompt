@@ -8,3 +8,7 @@ Pi extension. `/edit` opens your editor to write long prompts.
 - GUI editors need a wait flag, e.g. `EDITOR="code -w"`.
 
 Install: `pi install /path/to/big-prompt` or `pi -e ./extensions/big-prompt.ts`.
+
+## Tests
+
+`npm test` (Node 22.18+ runs the TypeScript directly, no build step).
