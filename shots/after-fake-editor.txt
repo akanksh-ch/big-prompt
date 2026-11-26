@@ -1,0 +1,51 @@
+
+ ▀▀█  v1.6.1
+ █▀ █ escape interrupt · ctrl+c/ctrl+d clear/exit · / commands · ! bash · ctrl+o more
+ Press ctrl+o to show full startup help and loaded resources.
+
+ Pi can explain its own features and look up its docs. Ask it how to use or extend Pi.
+
+[Skills]
+  ask-matt, ask-user, brainstorming, btw, cavecrew, caveman, caveman-commit, caveman-compress, caveman-discover, caveman-evidence-review, caveman-explore, caveman-help, caveman-learn, caveman-manage, caveman-optimize, caveman-review, caveman-setup, caveman-stats, claude-handoff, code-review, codebase-design,
+diagnosing-bugs, diagnosing-superpowers, dispatching-parallel-agents, domain-modeling, executing-plans, find-skills, finishing-a-development-branch, frontend-design, git-guardrails-claude-code, grill-me, grill-with-docs, grilling, handoff, impeccable, implement, implement-spec, improve-codebase-architecture,
+investigate-first, lean-build, loop-me, migrate-to-shoehorn, migration, pi-messenger-crew, ponytail, ponytail-audit, ponytail-debt, ponytail-gain, ponytail-help, ponytail-review, pr, prototype, receiving-code-review, requesting-code-review, research, retro, safe-refactor, scaffold-exercises,
+setup-matt-pocock-skills, setup-pre-commit, setup-ts-deep-modules, subagent-driven-development, surgical-patch, systematic-debugging, tailored-resume-generator, tdd, teach, test-driven-development, to-questionnaire, to-spec, to-tickets, triage, understand, understand-chat, understand-dashboard,
+understand-diff, understand-domain, understand-explain, understand-figma, understand-knowledge, understand-onboard, using-git-worktrees, using-superpowers, verification-before-completion, verify-and-stop, wait-what, wayfinder, wizard, writing-beats, writing-for-agents, writing-fragments, writing-plans,
+writing-shape, writing-skills
+
+[Extensions]
+  big-prompt.ts, pi-ask-user, pi-btw:btw.ts, pi-claude-bridge:src, pi-goal-x:goal.ts, pi-keep-going:src, pi-messenger, pi-openai-codex-usage:openai-codex-usage.ts
+
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Package Updates Available
+ Package updates are available. Run pi update --extensions
+ Packages:
+ - pi-goal-x
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+ draft: /edit
+
+
+ Message say "draft: /edit" — unclear. No edit target given.
+
+ What you want edit? Give file path and change.
+
+
+
+
+
+
+
+
+
+
+
+
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+~/Projects/big-prompt (main)
+↑2 ↓38 R23k W2.6k CH89.6% 2.5%/1.0M (auto)                                                                                                                                                                                                                                      (claude-bridge) claude-sonnet-5-5 • low
