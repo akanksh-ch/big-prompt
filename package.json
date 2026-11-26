@@ -4,5 +4,7 @@
   "description": "Pi extension: /edit opens $EDITOR to write big prompts",
   "keywords": ["pi-package"],
   "license": "MIT",
+  "type": "module",
+  "scripts": { "test": "node --test test/" },
   "pi": { "extensions": ["./extensions/big-prompt.ts"] }
 }
