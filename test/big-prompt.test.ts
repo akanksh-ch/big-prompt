@@ -37,7 +37,7 @@ test("cleanText: CRLF to LF, trailing newlines dropped, inner blank lines kept",
 
 // --- end-to-end through the registered command, with a fake pi/ctx and a real editor script ---
 
-function setup(editorScript: string, initialBox = "") {
+function setup(editorScript: string, initialBox = "", idle = true) {
 	const dir = mkdtempSync(join(tmpdir(), "bp-test-"));
 	const ed = join(dir, "ed.sh");
 	writeFileSync(ed, `#!/bin/sh\n${editorScript}\n`);
@@ -46,11 +46,20 @@ function setup(editorScript: string, initialBox = "") {
 	delete process.env.VISUAL;
 
 	let handler: (args: string, ctx: any) => Promise<void> = async () => {};
-	bigPrompt({ registerCommand: (_n: string, o: any) => (handler = o.handler) } as any);
-
-	const calls = { box: undefined as string | undefined, notes: [] as [string, string][], stopped: 0, started: 0 };
+	const calls = {
+		sent: [] as [string, any][],
+		box: undefined as string | undefined,
+		notes: [] as [string, string][],
+		stopped: 0,
+		started: 0,
+	};
+	bigPrompt({
+		registerCommand: (_n: string, o: any) => (handler = o.handler),
+		sendUserMessage: (t: string, o: any) => calls.sent.push([t, o]),
+	} as any);
 	const ctx = {
 		mode: "tui",
+		isIdle: () => idle,
 		ui: {
 			getEditorText: () => initialBox,
 			setEditorText: (t: string) => (calls.box = t),
@@ -65,45 +74,67 @@ function setup(editorScript: string, initialBox = "") {
 	return { run: (args = "") => handler(args, ctx), calls, ctx };
 }
 
-test("command: editor edits file, text lands in input box, TUI stopped/restarted", async () => {
-	const t = setup(`printf 'edited\\n\\n' >> "$1"`, "seed");
+test("command: saved text is sent, input box cleared, TUI stopped/restarted", async () => {
+	const t = setup(`printf ' edited\\n\\n' >> "$1"`, "seed");
 	await t.run();
-	assert.equal(t.calls.box, "seededited");
+	assert.deepEqual(t.calls.sent, [["seed edited", undefined]]);
+	assert.equal(t.calls.box, "");
 	assert.deepEqual([t.calls.stopped, t.calls.started], [1, 1]);
 });
 
-test("command: args seed the file instead of input box", async () => {
+test("command: args seed the file, input box left alone", async () => {
 	const t = setup(`printf ' +x' >> "$1"`, "box text");
 	await t.run("from args");
-	assert.equal(t.calls.box, "from args +x");
+	assert.deepEqual(t.calls.sent, [["from args +x", undefined]]);
+	assert.equal(t.calls.box, undefined);
 });
 
-test("command: file is the one the editor receives (path with quotes handled by shell)", async () => {
+test("command: editor gets the prompt.md path", async () => {
 	const t = setup(`echo "$1" | grep -q 'prompt.md$' && printf ok >> "$1"`, "");
 	await t.run();
-	assert.equal(t.calls.box, "ok");
+	assert.equal(t.calls.sent[0]?.[0], "ok");
 });
 
-test("command: no change leaves input box alone", async () => {
+test("command: unchanged non-empty text still sends (like git)", async () => {
 	const t = setup("true", "same");
 	await t.run();
-	assert.equal(t.calls.box, undefined);
-	assert.equal(t.calls.notes[0]?.[0], "No changes");
+	assert.equal(t.calls.sent[0]?.[0], "same");
 });
 
-test("command: non-zero exit warns and leaves input box alone", async () => {
+test("command: empty or whitespace-only text aborts", async () => {
+	const t = setup(`printf '  \\n\\n' > "$1"`, "something");
+	await t.run();
+	assert.deepEqual(t.calls.sent, []);
+	assert.equal(t.calls.box, undefined);
+	assert.deepEqual(t.calls.notes[0], ["Aborting: empty prompt", "warning"]);
+});
+
+test("command: non-zero exit aborts, nothing sent, box kept", async () => {
 	const t = setup(`printf junk >> "$1"; exit 3`, "keep");
 	await t.run();
+	assert.deepEqual(t.calls.sent, []);
 	assert.equal(t.calls.box, undefined);
-	assert.deepEqual(t.calls.notes[0], ["Editor exited with code 3; prompt unchanged", "warning"]);
+	assert.deepEqual(t.calls.notes[0], ["Editor exited with code 3; aborting, nothing sent", "warning"]);
 });
 
-test("command: missing editor binary reports error", async () => {
+test("command: missing editor binary aborts (shell exit 127)", async () => {
 	const t = setup("true");
 	process.env.EDITOR = "/nonexistent/editor-xyz";
 	await t.run("x");
-	assert.equal(t.calls.box, undefined);
-	assert.deepEqual(t.calls.notes[0], ["Editor exited with code 127; prompt unchanged", "warning"]);
+	assert.deepEqual(t.calls.sent, []);
+	assert.deepEqual(t.calls.notes[0], ["Editor exited with code 127; aborting, nothing sent", "warning"]);
+});
+
+test("command: queued as followUp while agent is busy", async () => {
+	const t = setup(`printf hi > "$1"`, "", false);
+	await t.run();
+	assert.deepEqual(t.calls.sent, [["hi", { deliverAs: "followUp" }]]);
+});
+
+test("command: markdown # headings are kept (no git-style comment stripping)", async () => {
+	const t = setup(`printf '# Title\\nbody' > "$1"`);
+	await t.run();
+	assert.equal(t.calls.sent[0]?.[0], "# Title\nbody");
 });
 
 test("command: refuses outside TUI", async () => {

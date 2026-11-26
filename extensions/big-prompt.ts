@@ -5,9 +5,9 @@
  *   *nix:    $VISUAL, then $EDITOR, then nano/vim/vi (first found on PATH)
  *   Windows: $VISUAL, then $EDITOR, then notepad
  *
- * Flow: seeds a temp .md file with the current input box text (or /edit args),
- * blocks while the editor runs, then puts the saved text back into the input
- * box. Review it and press Enter to send. Nothing is sent automatically.
+ * Flow (same as `git commit`): seeds a temp .md file with the current input
+ * box text (or /edit args), blocks while the editor runs, then sends the saved
+ * text as your prompt. Empty text or a non-zero editor exit aborts, nothing sent.
  */
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -46,14 +46,15 @@ export function cleanText(raw: string): string {
 
 export default function (pi: ExtensionAPI) {
 	pi.registerCommand("edit", {
-		description: "Write the prompt in your $EDITOR (input box text or args are used as the starting text)",
+		description: "Write and send a prompt from your $EDITOR, like git commit (empty = abort)",
 		handler: async (args, ctx) => {
 			if (ctx.mode !== "tui") {
 				ctx.ui.notify("/edit needs the interactive TUI", "error");
 				return;
 			}
 
-			const initial = args?.trim() ? args.trim() : ctx.ui.getEditorText();
+			const fromArgs = Boolean(args?.trim());
+			const initial = fromArgs ? args.trim() : ctx.ui.getEditorText();
 			const editor = resolveEditor();
 			const dir = mkdtempSync(join(tmpdir(), "pi-prompt-"));
 			const file = join(dir, "prompt.md");
@@ -80,17 +81,18 @@ export default function (pi: ExtensionAPI) {
 					return;
 				}
 				if (status !== 0) {
-					ctx.ui.notify(`Editor exited with code ${status}; prompt unchanged`, "warning");
+					ctx.ui.notify(`Editor exited with code ${status}; aborting, nothing sent`, "warning");
 					return;
 				}
 
+				// like `git commit`: empty message aborts, anything else goes
 				const text = cleanText(readFileSync(file, "utf8"));
-				if (text === initial) {
-					ctx.ui.notify("No changes", "info");
+				if (!text.trim()) {
+					ctx.ui.notify("Aborting: empty prompt", "warning");
 					return;
 				}
-				ctx.ui.setEditorText(text);
-				ctx.ui.notify(`Loaded ${text.length} chars from ${editor.split(/\s+/)[0]}. Enter to send.`, "info");
+				if (!fromArgs) ctx.ui.setEditorText("");
+				pi.sendUserMessage(text, ctx.isIdle() ? undefined : { deliverAs: "followUp" });
 			} finally {
 				rmSync(dir, { recursive: true, force: true });
 			}
