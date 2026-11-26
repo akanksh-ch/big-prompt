@@ -3,8 +3,10 @@
 Pi extension. `/edit` opens your editor to write long prompts.
 
 - Editor: `$VISUAL`, then `$EDITOR`, then nano/vim/vi (*nix) or notepad (Windows).
+- Works like `git commit`: write the prompt, save and quit, and it is sent. Empty text or a non-zero editor exit (`:cq`) aborts and sends nothing.
 - Starting text: `/edit <text>` args, else current input box text.
-- On save and quit (exit 0), text goes into the input box. Press Enter to send. Nonzero exit leaves the prompt unchanged.
+- If the agent is busy, the prompt is queued as a follow-up.
+- Lines starting with `#` are kept (markdown headings), unlike git.
 - GUI editors need a wait flag, e.g. `EDITOR="code -w"`.
 
 Install: `pi install /path/to/big-prompt` or `pi -e ./extensions/big-prompt.ts`.
