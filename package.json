@@ -1,14 +1,34 @@
 {
   "name": "pi-big-prompt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pi extension: /edit writes and sends big prompts from your $EDITOR, like git commit",
-  "keywords": ["pi-package"],
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "extension"
+  ],
   "license": "GPL-3.0-only",
   "author": "Akanksh Chitimalla",
-  "repository": { "type": "git", "url": "git+https://github.com/akanksh-ch/big-prompt.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akanksh-ch/big-prompt.git"
+  },
   "homepage": "https://github.com/akanksh-ch/big-prompt#readme",
   "type": "module",
-  "files": ["extensions", "README.md", "LICENSE"],
-  "scripts": { "test": "node --test test/" },
-  "pi": { "extensions": ["./extensions/big-prompt.ts"] }
+  "files": [
+    "extensions",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/big-prompt.ts"
+    ],
+    "image": "https://raw.githubusercontent.com/akanksh-ch/big-prompt/main/shots/after-hx.png",
+    "video": "https://raw.githubusercontent.com/akanksh-ch/big-prompt/main/shots/demo.mp4"
+  }
 }
